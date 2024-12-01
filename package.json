@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "axios": "^1.7.7",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "walk-sync": "^3.0.0"
+  }
+}

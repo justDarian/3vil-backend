@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3vil Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at 50% 0%, rgba(29, 78, 216, 0.15), transparent 60%),
+                    radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.15), transparent 50%);
+        z-index: -1;
+      }
+      
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: rgba(31, 41, 55, 0.5);
+        border-radius: 8px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.5);
+        border-radius: 8px;
+        transition: all 0.2s;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(99, 102, 241, 0.8);
+      }
+      .table-container {
+        mask-image: linear-gradient(to top, transparent 0%, black 48px, black calc(100% - 48px), transparent 100%);
+        -webkit-mask-image: linear-gradient(to top, transparent 0%, black 48px, black calc(100% - 48px), transparent 100%);
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            colors: {
+              nebula: {
+                50: "#f5f5ff",
+                100: "#8080ff",
+                200: "#6666ff",
+                300: "#4d4dff",
+                400: "#3333ff",
+                500: "#1a1aff",
+                600: "#0000ff",
+                700: "#0000e6",
+                800: "#0000cc",
+                900: "#0000b3",
+              },
+            },
+            animation: {
+              'gradient': 'gradient 15s ease infinite',
+            },
+            keyframes: {
+              gradient: {
+                '0%, 100%': {
+                  'background-size': '200% 200%',
+                  'background-position': 'left center'
+                },
+                '50%': {
+                  'background-size': '200% 200%',
+                  'background-position': 'right center'
+                },
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen font-sans bg-gray-900 text-white overflow-x-hidden">
+    <div class="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-indigo-950"></div>
+    
+    <div class="relative min-h-screen">
+      <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"20\" height=\"20\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cpath d=\"M0 0h1v1H0zM19 19h1v1h-1z\" fill=\"%23f3f4f6\" fill-opacity=\".05\"/%3E%3C/svg%3E')] bg-repeat opacity-20"></div>
+      
+      <div class="relative">
+        <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-8 space-y-8">
+          <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex flex-col gap-1">
+              <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-nebula-400 to-blue-500 animate-gradient">
+                3vil Admin Panel
+              </h1>
+              <p class="text-gray-400">Manage your users and licenses</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="bg-gray-800/40 backdrop-blur-md rounded-xl px-4 py-2 flex items-center gap-2 border border-gray-700/30 shadow-lg">
+                <span class="text-gray-400">Total Users:</span>
+                <span id="userCount" class="text-nebula-200 font-semibold animate-pulse">Loading...</span>
+              </div>
+            </div>
+          </header>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-gray-800/40 backdrop-blur-md rounded-xl shadow-xl p-6 border border-gray-700/30 hover:border-gray-600/30 transition-colors duration-300">
+              <h2 class="text-2xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-nebula-200 to-blue-400">Add User</h2>
+              <div class="space-y-4">
+                <input type="text" id="addDiscordId" placeholder="Discord ID"
+                  class="w-full px-4 py-2 bg-gray-900/50 text-white border border-gray-600/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-nebula-500/50 transition-all duration-300 placeholder-gray-500" />
+                <select id="licenseType"
+                  class="w-full px-4 py-2 bg-gray-900/50 text-white border border-gray-600/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-nebula-500/50 transition-all duration-300">
+                  <option value="trial">Trial</option>
+                  <option value="hour">Hour</option>
+                  <option value="day">Day</option>
+                  <option value="week">Week</option>
+                  <option value="month">Monthly</option>
+                  <option value="lifetime">Lifetime</option>
+                </select>
+                <button onclick="addUser()"
+                  class="w-full bg-gradient-to-r from-nebula-600/80 to-blue-600/80 text-white px-4 py-2 rounded-xl hover:from-nebula-700/80 hover:to-blue-700/80 focus:outline-none focus:ring-2 focus:ring-nebula-500/50 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-300 font-medium shadow-lg hover:shadow-xl">
+                  Add User
+                </button>
+              </div>
+            </div>
+
+            <div class="bg-gray-800/40 backdrop-blur-md rounded-xl shadow-xl p-6 border border-gray-700/30 hover:border-gray-600/30 transition-colors duration-300">
+              <h2 class="text-2xl font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-red-600">Remove User</h2>
+              <div class="space-y-4">
+                <input type="text" id="removeDiscordId" placeholder="Discord ID"
+                  class="w-full px-4 py-2 bg-gray-900/50 text-white border border-gray-600/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all duration-300 placeholder-gray-500" />
+                <button onclick="removeUser()"
+                  class="w-full bg-gradient-to-r from-red-600/80 to-red-500/80 text-white px-4 py-2 rounded-xl hover:from-red-700/80 hover:to-red-600/80 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-300 font-medium shadow-lg hover:shadow-xl">
+                  Remove User
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gray-800/40 backdrop-blur-md rounded-xl shadow-xl p-6 border border-gray-700/30 hover:border-gray-600/30 transition-colors duration-300">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+              <div class="flex items-center gap-4">
+                <h2 class="text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-nebula-200 to-blue-400">User List</h2>
+                <button id="refreshButton" onclick="fetchUsers()" 
+                  class="px-4 py-2 bg-gray-900/50 border border-gray-600/30 rounded-xl hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-nebula-500/50 transition-all duration-300 flex items-center gap-2 hover:text-nebula-200">
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Refresh</span>
+                </button>
+              </div>
+              <div class="relative w-full sm:w-64">
+                <input type="text" id="searchInput" placeholder="Search users..."
+                  class="w-full pl-10 pr-4 py-2 bg-gray-900/50 text-white border border-gray-600/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-nebula-500/50 transition-all duration-300 placeholder-gray-500" />
+                <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+            
+            <div class="relative rounded-xl border border-gray-700/30">
+              <div class="max-h-[600px] overflow-y-auto rounded-xl">
+                <table class="w-full">
+                  <thead class="bg-gray-900/80 backdrop-blur-sm sticky top-0 z-10">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Discord ID</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Username</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">License Type</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Expiration Date</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-700/30 bg-gray-800/20" id="userTableBody">
+                    <tr>
+                      <td colspan="6" class="px-4 py-8 text-center text-gray-400">
+                        <div class="flex items-center justify-center space-x-2">
+                          <svg class="animate-spin h-5 w-5 text-nebula-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span>Loading users...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<script>
+let adminKey = localStorage.getItem("adminKey") || prompt("enter admin key:");
+localStorage.setItem("adminKey", adminKey);
+
+let users = [];
+let searchTerm = '';
+
+function updateUserCount(count) {
+  document.getElementById("userCount").textContent = count.toLocaleString();
+}
+
+function filterUsers() {
+  if (!searchTerm) return renderUsers(users);
+  const lowercaseSearch = searchTerm.toLowerCase();
+  const filtered = users.filter(user => 
+    String(user.discordid).includes(lowercaseSearch) ||
+    String(user.discordUsername).toLowerCase().includes(lowercaseSearch)
+  );
+  renderUsers(filtered);
+}
+
+function getLicenseStyle(type) {
+  const styles = {
+    trial: 'bg-gray-500/20 text-gray-200 border-gray-500/30',
+    hour: 'bg-blue-500/20 text-blue-200 border-blue-500/30',
+    day: 'bg-cyan-500/20 text-cyan-200 border-cyan-500/30',
+    week: 'bg-emerald-500/20 text-emerald-200 border-emerald-500/30',
+    month: 'bg-amber-500/20 text-amber-200 border-amber-500/30',
+    lifetime: 'bg-purple-600/20 text-purple-200 border-purple-600/30'
+  };
+  return styles[type?.toLowerCase()] || 'bg-gray-500/20 text-gray-200 border-gray-500/30';
+}
+
+function renderUsers(usersToRender) {
+  if (!Array.isArray(usersToRender)) return;
+  const tbody = document.getElementById("userTableBody");
+  if (!tbody) return;
+
+  tbody.innerHTML = usersToRender.length ? usersToRender
+    .map(user => `
+      <tr class="transition-colors duration-200 hover:bg-gray-700/30">
+        <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-200">${user.discordid}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-gray-300">${user.discordUsername || 'n/a'}</td>
+        <td class="px-4 py-3 whitespace-nowrap">
+          <span class="px-3 py-1 rounded-full text-xs font-medium ${getLicenseStyle(user.licenseType)} border">
+            ${user.licenseType?.toLowerCase() || 'unknown'}
+          </span>
+        </td>
+        <td class="px-4 py-3 whitespace-nowrap text-gray-300">
+          ${new Date(user.expirationDate).toLocaleString()}
+        </td>
+        <td class="px-4 py-3 whitespace-nowrap">
+          <span class="px-3 py-1 rounded-full text-xs font-medium border ${
+            user.firstTime ? 'bg-rose-500/20 text-rose-200 border-rose-500/30' : 'bg-emerald-500/20 text-emerald-200 border-emerald-500/30'
+          }">
+            ${user.firstTime ? 'unlinked' : 'linked'}
+          </span>
+        </td>
+        <td class="px-4 py-3 whitespace-nowrap">
+          <button onclick="relinkUser('${user.discordid}')" 
+            class="px-3 py-1 bg-amber-500/20 border border-amber-500/30 text-amber-200 rounded-lg hover:bg-amber-500/30 transition-all duration-200">
+            relink
+          </button>
+        </td>
+      </tr>
+    `).join("") : `
+      <tr>
+        <td colspan="6" class="px-4 py-8 text-center text-gray-400">
+          ${searchTerm ? 'no matching users found' : 'no users available'}
+        </td>
+      </tr>
+    `;
+}
+
+async function fetchUsers() {
+  const btn = document.getElementById('refreshButton');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+  }
+
+  try {
+    const res = await fetch('/admin/users', { 
+      headers: { auth: adminKey }
+    });
+    if (!res.ok) throw new Error('failed to fetch users');
+    users = await res.json();
+    if (!Array.isArray(users)) throw new Error('invalid response format');
+    updateUserCount(users.length);
+    filterUsers();
+    showNotification("users updated", "success");
+  } catch (err) {
+    showNotification(err.message, "error");
+    users = [];
+    updateUserCount(0);
+    renderUsers([]);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>`;
+    }
+  }
+}
+
+async function addUser() {
+  const discordInput = document.getElementById("addDiscordId");
+  const licenseSelect = document.getElementById("licenseType");
+  
+  if (!discordInput || !licenseSelect) return;
+  
+  const discordid = discordInput.value.trim();
+  const licenseType = licenseSelect.value;
+
+  if (!discordid) {
+    showNotification("enter discord id", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch('/admin/addUser', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        auth: adminKey
+      },
+      body: JSON.stringify({
+        discordid,
+        licenseType
+      })
+    });
+
+    if (!res.ok) throw new Error('failed to add user');
+    
+    showNotification("user added", "success");
+    discordInput.value = "";
+    await fetchUsers();
+  } catch (err) {
+    showNotification(err.message, "error");
+  }
+}
+
+async function removeUser() {
+  const discordInput = document.getElementById("removeDiscordId");
+  if (!discordInput) return;
+  
+  const discordid = discordInput.value.trim();
+  if (!discordid) {
+    showNotification("enter discord id", "error");
+    return;
+  }
+  
+  try {
+    const res = await fetch('/admin/removeUser', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        auth: adminKey
+      },
+      body: JSON.stringify({ discordid })
+    });
+
+    if (!res.ok) throw new Error('failed to remove user');
+    
+    showNotification("user removed", "success");
+    discordInput.value = "";
+    await fetchUsers();
+  } catch (err) {
+    showNotification(err.message, "error");
+  }
+}
+
+async function relinkUser(discordid) {
+  if (!discordid) return;
+  
+  try {
+    const res = await fetch('/admin/relink', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        auth: adminKey
+      },
+      body: JSON.stringify({ discordid })
+    });
+
+    if (!res.ok) throw new Error('failed to relink user');
+    
+    showNotification("user relinked", "success");
+    await fetchUsers();
+  } catch (err) {
+    showNotification(err.message, "error");
+  }
+}
+
+function showNotification(message, type) {
+  const notif = document.createElement("div");
+  notif.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white ${
+    type === "error" ? "bg-rose-600/90" : "bg-emerald-600/90"
+  } backdrop-blur-sm shadow-lg transform translate-y-0 opacity-100 transition-all duration-300 z-50 flex items-center gap-2`;
+  
+  notif.innerHTML = `
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${
+        type === "error" 
+          ? "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          : "M5 13l4 4L19 7"
+      }" />
+    </svg>
+    ${message}
+  `;
+  
+  document.body.appendChild(notif);
+  setTimeout(() => {
+    notif.style.transform = "translateY(-1rem)";
+    notif.style.opacity = "0";
+    setTimeout(() => notif.remove(), 300);
+  }, 3000);
+}
+
+const searchInput = document.getElementById("searchInput");
+if (searchInput) {
+  searchInput.addEventListener("input", e => {
+    searchTerm = e.target.value;
+    filterUsers();
+  });
+}
+
+["addDiscordId", "removeDiscordId"].forEach(id => {
+  const elem = document.getElementById(id);
+  if (elem) {
+    elem.addEventListener("keypress", e => {
+      if (e.key === "Enter") id === "addDiscordId" ? addUser() : removeUser();
+    });
+  }
+});
+
+fetchUsers();
+</script>
+
+  </body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3vil Admin | Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="h-full bg-gradient-to-br from-gray-900 to-indigo-950 flex items-center justify-center transition-colors duration-300">
+ <!--i can't see im blinddd-->   <div class="bg-gray-800 p-8 rounded-lg shadow-2xl w-96 transform transition-all duration-300 ease-in-out hover:scale-105">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-white">3vil Admin</h1>
+        </div>
+        <form id="loginForm" class="space-y-6 mt-8">
+            <div class="relative">
+                <input type="password" id="adminKey" placeholder=" " class="block w-full px-4 py-3 text-gray-300 bg-gray-700 border border-gray-600 rounded-lg focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300" required>
+                <label for="adminKey" class="absolute left-4 top-3 text-gray-400 transition-all duration-300 pointer-events-none">
+                    Admin Key
+                </label>
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-800">
+                <span class="flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                    </svg> <!--h o t t o g o, you can take me hot to goo!!-->
+                    Login
+                </span>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const storedKey = localStorage.getItem('adminKey');
+        const adminKeyInput = document.getElementById('adminKey');
+        const loginForm = document.getElementById('loginForm');
+
+        if (storedKey) {
+            tryLogin(storedKey);
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); //e means event for the retards (cyx this is so you don't gotta chatgpt it) [icey: why would we water the web]
+            const key = adminKeyInput.value;
+            tryLogin(key);
+        });
+
+        async function tryLogin(key) {
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ key })
+                });
+                
+                if (response.ok) {
+                    const html = await response.text();
+                    localStorage.setItem('adminKey', key);
+                    document.body.classList.add('fade-out');
+                    setTimeout(() => {
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    }, 500);
+                } else {
+                    throw new Error('Invalid admin key');
+                }
+            } catch (error) {
+                localStorage.removeItem('adminKey');
+                adminKeyInput.value = '';
+                showError(error.message);
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'bg-red-900 border-l-4 border-red-500 text-red-100 p-4 mt-4 rounded';
+            errorDiv.textContent = message;
+            loginForm.insertAdjacentElement('afterend', errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
+        }
+
+        // hot animation !!!! its so sexy and hot
+        adminKeyInput.addEventListener('focus', () => {
+            adminKeyInput.previousElementSibling.classList.add('text-xs', '-translate-y-6', 'text-indigo-400');
+        });
+
+        adminKeyInput.addEventListener('blur', () => {
+            if (!adminKeyInput.value) {
+                adminKeyInput.previousElementSibling.classList.remove('text-xs', '-translate-y-6', 'text-indigo-400');
+            }
+        });
+
+        //finger me
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fade-out {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+            .fade-out {
+                animation: fade-out 0.5s forwards;
+            }
+            #adminKey:not(:placeholder-shown) + label {
+                transform: translateY(-1.5rem) scale(0.75);
+                color: #818cf8;
+            }
+        `;
+        document.head.appendChild(style); //makeChild
+    </script>
+</body>
+</html>
