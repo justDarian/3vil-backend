@@ -35,7 +35,7 @@ app.use((req, res, next) => {
     next();
 });
 
-const PORT = 3000;
+const PORT = 80;
 const dbPath = path.join(__dirname, 'users.json');
 let users = JSON.parse(fs.readFileSync(dbPath, "utf-8"));
 const adminKeys = [
